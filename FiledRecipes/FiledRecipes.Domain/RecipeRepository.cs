@@ -127,5 +127,42 @@ namespace FiledRecipes.Domain
                 handler(this, e);
             }
         }
+
+        public void Load() {
+
+            _recipes = new List<IRecipe>();
+
+            string line = null;
+            string nextline = null;
+
+            using (StreamReader Listreader = new StreamReader(_path)) {
+
+                line = Listreader.ReadLine();
+                nextline = Listreader.ReadLine();
+                Recipe Rec = null;
+                
+                while (line != null)
+                {
+                    //if (line.Contains(Resources.Recipe)) {
+
+                    //   Rec = new Recipe(nextline);
+                    //}
+
+                    //if (line.Contains(Resources.Ingredient)) {
+
+                        
+                    //}
+                       
+                    
+                }
+
+            }
+       
+        }
+
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
