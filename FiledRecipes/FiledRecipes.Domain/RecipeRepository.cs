@@ -128,10 +128,15 @@ namespace FiledRecipes.Domain
             }
         }
 
+        /// <summary>
+        /// Loads recipes and formats them into sections of
+        /// Ingredients, and Instructions by assigning references to
+        /// Recipe and Ingredient objects.
+        /// </summary>
+
         public void Load() {
-
-            _recipes = new List<IRecipe>();
-
+                    
+            //strings representing the current line, and the next line to be read.
             string line = null;
             string nextline = null;
 
@@ -139,30 +144,107 @@ namespace FiledRecipes.Domain
 
                 line = Listreader.ReadLine();
                 nextline = Listreader.ReadLine();
-                Recipe Rec = null;
-                
+                /*  reference to an Recipe obj. to be assigned, using the 
+                *   variable name as argument to Recipe
+                */
+                Recipe Recip = null;
+                string name = null;
+                //Reference to an IIngredient
+                Ingredient Ingred;    
+                //Temporary storage of Ingrediences and Instructions
+                List<string> Ingrediences = new List<string>();
+                List<string> Instructions = new List<string>();
+
                 while (line != null)
                 {
-                    //if (line.Contains(Resources.Recipe)) {
+                    if (line.Contains(string.Empty))
+                    {
+                        //Skips the empty string.
+                        continue;    
+                    }
+                    else if (line.Contains(SectionRecipe))
+                    {
+                        //The name of the Recipe is set to the value of the next line.
+                        name = nextline;
+                    }
 
-                    //   Rec = new Recipe(nextline);
-                    //}
+                    if (line.Contains(SectionIngredients))
+                    {
+                        /*  The nexcoming lines, until the next section are stored in 
+                         *  the temporary list for now.
+                         */
+                        while (line != SectionInstructions) {
 
-                    //if (line.Contains(Resources.Ingredient)) {
+                            Ingrediences.Add(nextline);
+                        }
+                    }
+                    if (line.Contains(SectionInstructions))
+                    {
+                        /*  The nexcoming lines, until the next section are stored in 
+                         *  the temporary list for now.
+                         */
+                        while (line != SectionRecipe)
+                        {
+                            Instructions.Add(nextline);
+                        }
+                    }
+                    else if (line == name)
+                    {
+                        //Creates a new Recipe object, using the name aquired previously, stored in variable name.
+                        Recip = new Recipe(name);
+                    }
+                    else if (Ingrediences.Contains(line))
+                    {
+                            /*  Splits the string into what should be 3 parts
+                             *  however, if that is not the case, an exception is thrown.
+                             */
+                            string[] IngredienceArr = line.Split(';');
 
-                        
-                    //}
-                       
+                            if (IngredienceArr.Length > 3)
+                            {
+                                throw new FileFormatException();
+                            }
+                            //Sets each part to respective property of the Ingredient-obj. (Amount, Measure & Name)
+                            Ingred = new Ingredient();
+                            Ingred.Amount = IngredienceArr[0];
+                            Ingred.Measure = IngredienceArr[1];
+                            Ingred.Name = IngredienceArr[2];
+                    }
+                    else if (Instructions.Contains(line)) {
+                        /*  Tries to an line of the Instructions to the recipe, 
+                         *  however if the procedure fails, an exception is thrown.
+                         */
+                        try
+                        {
+                            Recip.Add(line);
+                        }
+                        catch (Exception)
+                        {                            
+                            throw new FileFormatException();
+                        }
+                    }
                     
+                     //Adds the recepie to the list & sorts it.                      
+                    _recipes.Add(Recip);
+                    _recipes.Sort();
+                    IsModified = false;
+                    OnRecipesChanged(EventArgs.Empty);                    
                 }
-
-            }
-       
+            }       
         }
 
+        /// <summary>
+        /// Saves the recipe.
+        /// </summary>
         public void Save()
         {
-            throw new NotImplementedException();
+            using (StreamWriter Sr = new StreamWriter(_path))
+            {
+
+
+            }
+
         }
+       
     }
 }
