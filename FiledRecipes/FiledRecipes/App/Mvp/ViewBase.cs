@@ -4,7 +4,7 @@ using System;
 
 namespace FiledRecipes.App.Mvp
 {
-    /// <summary>
+    /// <summary>s
     /// Represents the members that are needed to render a view.
     /// </summary>
     public abstract class ViewBase : IView

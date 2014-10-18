@@ -12,5 +12,12 @@ namespace FiledRecipes.Views
     /// </summary>
     public class RecipeView : ViewBase, IRecipeView
     {
+        public void Show(IRecipe recipe) {
+            
+
+        }
+        public void Show(IEnumerable<IRecipe> recipes) {
+            throw new NotImplementedException();
+        }
     }
 }

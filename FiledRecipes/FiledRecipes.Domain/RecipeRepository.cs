@@ -234,13 +234,23 @@ namespace FiledRecipes.Domain
         }
 
         /// <summary>
-        /// Saves the recipe.
+        /// Saves the recipes using all the recipies in the list _recipes
+        /// in the correct formatting.
         /// </summary>
         public void Save()
         {
             using (StreamWriter Sr = new StreamWriter(_path))
             {
-
+                foreach (Recipe recip in _recipes) {
+                    Sr.Write(SectionRecipe);
+                    Sr.Write(recip.Name);
+                    Sr.Write(SectionIngredients);
+                    foreach (Ingredient ingred in recip.Ingredients) {
+                        Sr.Write(string.Format("{0};{1};{2}",ingred.Amount, ingred.Measure, ingred.Name));
+                    }
+                    Sr.Write(SectionInstructions);
+                    Sr.Write(recip.Instructions);
+                }
 
             }
 
