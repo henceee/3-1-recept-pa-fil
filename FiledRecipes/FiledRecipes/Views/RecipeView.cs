@@ -13,11 +13,16 @@ namespace FiledRecipes.Views
     public class RecipeView : ViewBase, IRecipeView
     {
         public void Show(IRecipe recipe) {
-            
 
+            throw new NotImplementedException();
         }
         public void Show(IEnumerable<IRecipe> recipes) {
-            throw new NotImplementedException();
+
+            foreach (IRecipe recip in recipes)
+            {
+                this.Header = recip.Name;
+                
+            }
         }
     }
 }
