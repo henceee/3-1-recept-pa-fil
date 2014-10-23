@@ -154,10 +154,11 @@ namespace FiledRecipes.Domain
                 while ((line = Listreader.ReadLine()) != null)
 
                 {
-                    if (!line.Contains(""))
+                    if (!line.Contains(string.Empty))
                     {
-                       continue;
+                        continue;   
                     }
+                    
                     if (line.Contains(SectionRecipe))
                     {
                         status = RecipeReadStatus.New;
