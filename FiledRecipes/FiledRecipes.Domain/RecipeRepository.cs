@@ -142,8 +142,7 @@ namespace FiledRecipes.Domain
                 *   variable name as argument to Recipe
                 */
                 Recipe Recip = null;
-                string name = null;
-                //Reference to an IIngredient
+                //Reference to an Ingredient
                 IIngredient Ingred;
 
                 RecipeReadStatus status = RecipeReadStatus.Indefinite;
@@ -154,9 +153,8 @@ namespace FiledRecipes.Domain
                 while ((line = Listreader.ReadLine()) != null)
 
                 {
-                    if (!line.Contains(string.Empty))
-                    {
-                        continue;   
+                    if(line.Trim().Length == 0){
+                        continue;
                     }
                     
                     if (line.Contains(SectionRecipe))
@@ -202,7 +200,15 @@ namespace FiledRecipes.Domain
                           {
                               throw new FileFormatException();
                           }
-                          _recipes.Add(Recip);
+                          if (_recipes.Contains(Recip))
+                          {
+                              _recipes.Remove(Recip);
+                              _recipes.Add(Recip);
+                          }
+                          else
+                          {
+                              _recipes.Add(Recip);
+                          }
                           _recipes.Sort();
                           IsModified = false;
                           OnRecipesChanged(EventArgs.Empty);

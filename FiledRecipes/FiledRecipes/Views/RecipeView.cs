@@ -4,6 +4,7 @@ using FiledRecipes.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FiledRecipes.App.Controls;
 
 namespace FiledRecipes.Views
 {
@@ -13,15 +14,16 @@ namespace FiledRecipes.Views
     public class RecipeView : ViewBase, IRecipeView
     {
         public void Show(IRecipe recipe) {
-
-            throw new NotImplementedException();
+            
+            this.Header = recipe.Name;
+            ShowHeaderPanel();
+            
         }
         public void Show(IEnumerable<IRecipe> recipes) {
 
             foreach (IRecipe recip in recipes)
             {
-                this.Header = recip.Name;
-                
+                throw new NotImplementedException();
             }
         }
     }
