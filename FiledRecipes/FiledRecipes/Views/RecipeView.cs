@@ -20,7 +20,7 @@ namespace FiledRecipes.Views
             Console.WriteLine("\nIngredienser\n------------");
             foreach (Ingredient ingred in recipe.Ingredients)
             {
-                Console.WriteLine(string.Format("{0,-3} {1,-3} {2,-3}", ingred.Amount, ingred.Measure, ingred.Name));            
+                Console.WriteLine(string.Format("{0} {1} {2}", ingred.Amount, ingred.Measure, ingred.Name));            
             }
             Console.WriteLine("\nInstruktioner\n------------\n");
             foreach (string str in recipe.Instructions)
@@ -38,7 +38,7 @@ namespace FiledRecipes.Views
                 Console.WriteLine("\nIngredienser\n------------\n");
                 foreach (Ingredient ingred in recipe.Ingredients)
                 {
-                    Console.WriteLine(string.Format("{0}\t{1}\t{2}", ingred.Amount, ingred.Measure, ingred.Name));
+                    Console.WriteLine(string.Format("{0} {1} {2}", ingred.Amount, ingred.Measure, ingred.Name));
                 }
                 Console.WriteLine("\nInstruktioner\n------------");
                 foreach (string str in recipe.Instructions)
