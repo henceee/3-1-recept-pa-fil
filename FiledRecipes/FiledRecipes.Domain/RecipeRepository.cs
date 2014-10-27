@@ -236,9 +236,7 @@ namespace FiledRecipes.Domain
                     Sr.Write(SectionInstructions);
                     Sr.Write(recip.Instructions);
                 }
-
             }
-
         }
        
     }

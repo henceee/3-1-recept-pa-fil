@@ -17,14 +17,36 @@ namespace FiledRecipes.Views
             
             this.Header = recipe.Name;
             ShowHeaderPanel();
+            Console.WriteLine("\nIngredienser\n------------");
+            foreach (Ingredient ingred in recipe.Ingredients)
+            {
+                Console.WriteLine(string.Format("{0,-3} {1,-3} {2,-3}", ingred.Amount, ingred.Measure, ingred.Name));            
+            }
+            Console.WriteLine("\nInstruktioner\n------------\n");
+            foreach (string str in recipe.Instructions)
+            {
+                Console.WriteLine(string.Format("{0}\n",str));
+            }
             
         }
         public void Show(IEnumerable<IRecipe> recipes) {
 
-            foreach (IRecipe recip in recipes)
+            foreach (IRecipe recipe in recipes)
             {
-                throw new NotImplementedException();
+                this.Header = recipe.Name;
+                ShowHeaderPanel();
+                Console.WriteLine("\nIngredienser\n------------\n");
+                foreach (Ingredient ingred in recipe.Ingredients)
+                {
+                    Console.WriteLine(string.Format("{0}\t{1}\t{2}", ingred.Amount, ingred.Measure, ingred.Name));
+                }
+                Console.WriteLine("\nInstruktioner\n------------");
+                foreach (string str in recipe.Instructions)
+                {
+                    Console.WriteLine(string.Format("{0}\n", str));
+                }
             }
+            ContinueOnKeyPressed();
         }
     }
 }
