@@ -136,11 +136,11 @@ namespace FiledRecipes.Domain
 
         public void Load()
         {
-            
             using (StreamReader Listreader = new StreamReader(_path))
             {
-                Recipe Recip = null;
-                IIngredient Ingred;
+                List<IRecipe> recipes = new List<IRecipe>();
+                Recipe recipe = null;
+                IIngredient ingredient;
                 //Variable that sets the status of the nextcoming row(s)
                 RecipeReadStatus status = RecipeReadStatus.Indefinite;
                 string line;
@@ -148,103 +148,88 @@ namespace FiledRecipes.Domain
                 while ((line = Listreader.ReadLine()) != null)
                 {
                     //if the line is empty, reader keeps on reading.
-                    if(line.Trim().Length == 0){
+                    if (String.IsNullOrWhiteSpace(line))
+                    {
                         continue;
                     }
+                    /*  If the section divider indicates a new recipe,
+                      *  the status of the next rows are set to New.
+                      */
+                    if (line.Contains(SectionRecipe))
+                    {
+                        status = RecipeReadStatus.New;
+                    }
+                    /*  If the section divider indicates that ingrediences are to
+                     *  follow, the status of the next rows are set to Ingredient.
+                     */
+                    else if (line.Contains(SectionIngredients))
+                    {
+                        status = RecipeReadStatus.Ingredient;
+                    }
+                    /*  If the section divider indicates that instructions are to
+                    *  follow, the status of the next rows are set to Instructions.
+                    */
+                    else if (line.Contains(SectionInstructions))
+                    {
+                        status = RecipeReadStatus.Instruction;
+                    }
                     else
-                    {   /*  If the section divider indicates a new recipe,
-                         *  the status of the next rows are set to New.
+                    { 
+                        /*  If the status is set to New, and is the next line
+                         *  after the section divider, that means it is the name
+                         *  of the recipe. A new instance of Recipe is created
+                         *  using that line.
                          */
-                        if (line.Contains(SectionRecipe))
+                        if (status == RecipeReadStatus.New)
                         {
-                            status = RecipeReadStatus.New;
+                            recipe = new Recipe(line);
+                            recipes.Add(recipe);
                         }
-                        /*  If the section divider indicates that ingrediences are to
-                         *  follow, the status of the next rows are set to Ingredient.
-                         */
-                        else if (line.Contains(SectionIngredients))
-                        {
-                            status = RecipeReadStatus.Ingredient;
-                        }
-                        /*  If the section divider indicates that instructions are to
-                        *  follow, the status of the next rows are set to Instructions.
+                        /*  If the status is set to Ingredient, and is the next line
+                        *   after the section divider, that means it is an ingredient..
                         */
-                        else if (line.Contains(SectionInstructions))
+                        else if (status == RecipeReadStatus.Ingredient)
                         {
-                            status = RecipeReadStatus.Instruction;
-                        } 
-                        //Checks the status of the current line.
-                        if (status == RecipeReadStatus.New || status ==RecipeReadStatus.Ingredient ||
-                            status == RecipeReadStatus.Instruction)
-                        {
-                            /*  If the status is set to New, and is the next line
-                             *  after the section divider, that means it is the name
-                             *  of the recipe. A new instance of Recipe is created
-                             *  using that line.
+                            /*  The line is split into what should be 3 parts,
+                             *  otherwise an exception is thrown.
                              */
-                            if (status == RecipeReadStatus.New && line != SectionRecipe)
+                            string[] ingredienceArr = line.Split(new char[] { ';' });
+                            if (ingredienceArr.Length < 3)
                             {
-                                Recip = new Recipe(line);
+                                throw new FileFormatException();
                             }
-                            /*  If the status is set to Ingredient, and is the next line
-                            *   after the section divider, that means it is an ingredient..
-                            */
-                            else if (status == RecipeReadStatus.Ingredient && line != SectionIngredients)
-                            {
-                                /*  The line is split into what should be 3 parts,
-                                 *  otherwise an exception is thrown.
-                                 */
-                                string[] ingredienceArr = line.Split(new char[] { ';' });
-                                if (ingredienceArr.Length < 3)
-                                {
-                                    throw new FileFormatException();
-                                }
-                                /*  Sets each part to respective property of the 
-                                 *  Ingredient-obj.(Amount, Measure & Name)
-                                 *  and adds the ingredient to the recipe.
-                                 */
-                                Ingred = new Ingredient();
-                                Ingred.Amount = ingredienceArr[0];
-                                Ingred.Measure = ingredienceArr[1];
-                                Ingred.Name = ingredienceArr[2];
-                                Recip.Add(Ingred);
-                            }
-                            /*  If the status is set to Instruction, and is the next line
-                            *  after the section divider, that means it is an instruction..
-                            */
-                            else if (status == RecipeReadStatus.Instruction && line != SectionInstructions)
-                            {
-                                /*  .. and should be able to be added to the recipe.
-                                 *  otherwise the format is incorrect and an exception is thrown. 
-                                 */
-                                try
-                                {
-                                    Recip.Add(line);
-                                }
-                                catch (Exception)
-                                {
-                                    throw new FileFormatException();
-                                }
-                                /*  If the recipe allready exists in the list of recipes
-                                 *  it is deleted to prevent doubles. The recipe is then added
-                                 *  to the list of recipes and sorted.
-                                 */
-                                if (_recipes.Contains(Recip))
-                                {
-                                    _recipes.Remove(Recip);
-                                    
-                                }
-                                 _recipes.Add(Recip);                                
-                                _recipes.Sort();
-                                //The recipe is unmodified.
-                                IsModified = false;
-                                OnRecipesChanged(EventArgs.Empty);
-                            } 
+                            /*  Sets each part to respective property of the 
+                             *  Ingredient-obj.(Amount, Measure & Name)
+                             *  and adds the ingredient to the recipe.
+                             */
+                            ingredient = new Ingredient();
+                            ingredient.Amount = ingredienceArr[0];
+                            ingredient.Measure = ingredienceArr[1];
+                            ingredient.Name = ingredienceArr[2];
+                            recipe.Add(ingredient);
                         }
-                    }                    
-                }                
+                        /*  If the status is set to Instruction, and is the next line
+                        *  after the section divider, that means it is an instruction..
+                        */
+                        else if (status == RecipeReadStatus.Instruction)
+                        {
+                            //  .. and should be able to be added to the recipe.
+                            recipe.Add(line);
+                        }
+                        else
+                        {
+                             // ...otherwise the format is incorrect and an exception is thrown. 
+                            throw new FileFormatException();
+                        }
+                    }
+                }
+                recipes.TrimExcess();
+                recipes.Sort();
+                _recipes = recipes;
+                //The recipe is unmodified.
+                IsModified = false;
+                OnRecipesChanged(EventArgs.Empty);
             }
-            
         }
 
         /// <summary>
@@ -253,30 +238,31 @@ namespace FiledRecipes.Domain
         /// </summary>
         public void Save()
         {
-            using (StreamWriter Sr = new StreamWriter(_path))
+            using (StreamWriter sr = new StreamWriter(_path))
             {
-                foreach (Recipe recip in _recipes)
+                foreach (IRecipe recip in _recipes)
                 {
                     /*Writes the section divider for new recipe,
                     /*the name of the recipe & the section
                      * for ingredients to the file.
                      */
-                    Sr.Write(SectionRecipe);
-                    Sr.Write(recip.Name);
-                    Sr.Write(SectionIngredients);
+                    sr.Write(SectionRecipe);
+                    sr.Write(recip.Name);
+                    sr.Write(SectionIngredients);
                     //Writes the amout, measure and name of each ingredient of the recipe to the file.
-                    foreach (Ingredient ingred in recip.Ingredients) {
-                        Sr.Write(string.Format("{0};{1};{2}",ingred.Amount, ingred.Measure, ingred.Name));
+                    foreach (Ingredient ingred in recip.Ingredients)
+                    {
+                        sr.Write(string.Format("{0};{1};{2}", ingred.Amount, ingred.Measure, ingred.Name));
                     }
                     //Writes the section divider for instructions, and all the instructions to the file.
-                    Sr.Write(SectionInstructions);
-                    Sr.Write(recip.Instructions);
+                    sr.Write(SectionInstructions);
+                    sr.Write(recip.Instructions);
                 }
             }
             //The recipe is unmodified.
             IsModified = false;
             OnRecipesChanged(EventArgs.Empty);
         }
-       
+
     }
 }
